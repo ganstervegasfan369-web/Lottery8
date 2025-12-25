@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>American Online Lottery</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Oswald:wght@600&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  background:radial-gradient(circle at top,#020617,#000);
+  font-family:Montserrat;
+  color:#fff;
+}
+.app{
+  max-width:1200px;
+  margin:auto;
+  border:10px solid #facc15;
+  background:#000;
+}
+
+/* TITLES */
+.top{
+  font-size:52px;
+  text-align:center;
+  padding:16px;
+  background:linear-gradient(90deg,#7c3aed,#2563eb);
+  text-shadow:3px 3px 0 #000;
+}
+.sub{
+  font-size:32px;
+  text-align:center;
+  padding:10px;
+  background:#1e3a8a;
+  border-top:4px solid #000;
+  border-bottom:4px solid #000;
+}
+
+/* STAGE */
+.stage{
+  position:relative;
+  background:linear-gradient(#d1d5db,#f8fafc);
+  padding:30px 80px;
+}
+
+/* RIBBONS */
+.ribbon{
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:80px;
+  background:#dc2626;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:32px;
+  font-weight:900;
+  writing-mode:vertical-rl;
+  text-shadow:2px 2px 0 #000;
+}
+.left{left:0}
+.right{right:0}
+
+/* SLOT FRAME */
+.frame{
+  position:relative;
+  display:flex;
+  justify-content:center;
+  gap:16px;
+  padding:24px;
+  background:linear-gradient(#9ca3af,#e5e7eb);
+  border:8px solid #374151;
+  box-shadow:inset 0 0 30px rgba(0,0,0,.5);
+  overflow:hidden;
+}
+
+/* SLOT */
+.slot{
+  width:90px;
+  height:170px;
+  background:linear-gradient(#111,#555);
+  border:6px solid #000;
+  overflow:hidden;
+  position:relative;
+}
+.slot::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.2),transparent 70%);
+}
+.reel{
+  position:absolute;
+  width:100%;
+}
+.reel div{
+  height:170px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-family:Oswald;
+  font-size:110px;
+  background:#fff;
+  color:#000;
+  border-bottom:2px solid #ccc;
+}
+
+/* FLASH & CELEBRATION */
+.flash{
+  animation:flash 0.3s alternate infinite;
+}
+@keyframes flash{
+  from{box-shadow:inset 0 0 10px gold}
+  to{box-shadow:inset 0 0 35px gold}
+}
+.spark{
+  position:absolute;
+  width:10px;
+  height:10px;
+  background:gold;
+  border-radius:50%;
+  animation:spark 1.6s ease-out forwards;
+}
+@keyframes spark{
+  to{transform:translateY(-200px) scale(0); opacity:0}
+}
+
+/* INFO */
+.info{
+  background:#facc15;
+  color:#000;
+  display:flex;
+  justify-content:space-between;
+  font-size:26px;
+  padding:14px;
+  font-weight:900;
+}
+
+/* ADMIN */
+.admin{
+  background:#020617;
+  padding:18px;
+  border-top:6px solid #facc15;
+}
+.admin input,.admin button{
+  padding:10px;
+  font-size:16px;
+  margin:5px;
+}
+.admin label{margin-left:10px}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<div class="top" id="topText">AMERICAN ONLINE LOTTERY</div>
+<div class="sub" id="subText">LION KING – DAILY DRAW</div>
+
+<div class="stage">
+  <div class="ribbon left" id="leftRibbon">LION KING</div>
+  <div class="ribbon right" id="rightRibbon">LION KING</div>
+  <div class="frame" id="frame"></div>
+</div>
+
+<div class="info">
+  <div>DATE: <span id="date"></span></div>
+  <div>TIME: <span id="time"></span></div>
+  <div id="venue">OFFICIAL LIVE</div>
+</div>
+
+<div class="admin">
+<h3 style="color:#facc15">ADVANCED ADMIN CONTROLS</h3>
+
+<input id="force" placeholder="FORCE RESULT (5 DIGITS)">
+<button onclick="spin()">SPIN</button>
+<button onclick="spinRandom()">RANDOM</button><br>
+
+<label>SPIN SPEED</label><input type="range" id="speed" min="50" max="120" value="80">
+<label>STOP DELAY</label><input type="range" id="delay" min="300" max="800" value="450"><br>
+
+<label>SOUND VOLUME</label><input type="range" id="volume" min="0" max="1" step="0.01" value="0.6">
+<label>CELEBRATION</label><input type="range" id="celebrateLevel" min="30" max="120" value="70"><br>
+
+<input oninput="topText.textContent=this.value.toUpperCase()" placeholder="TOP TITLE">
+<input oninput="subText.textContent=this.value.toUpperCase()" placeholder="SUB TITLE">
+<input oninput="leftRibbon.textContent=this.value.toUpperCase()" placeholder="LEFT RIBBON">
+<input oninput="rightRibbon.textContent=this.value.toUpperCase()" placeholder="RIGHT RIBBON">
+<input oninput="venue.textContent=this.value.toUpperCase()" placeholder="VENUE TEXT"><br>
+
+<input oninput="date.textContent=this.value.toUpperCase()" placeholder="DATE">
+<input oninput="time.textContent=this.value.toUpperCase()" placeholder="TIME">
+</div>
+
+</div>
+
+<script>
+const frame=document.getElementById('frame');
+const reels=[];
+const slots=5;
+
+for(let i=0;i<slots;i++){
+  const s=document.createElement('div');
+  s.className='slot';
+  const r=document.createElement('div');
+  r.className='reel';
+  for(let d=0;d<10;d++){
+    const e=document.createElement('div');
+    e.textContent=d;
+    r.appendChild(e);
+  }
+  s.appendChild(r);
+  frame.appendChild(s);
+  reels.push(r);
+}
+
+/* AUDIO */
+const audio=new AudioContext();
+function metalTick(){
+  const o=audio.createOscillator();
+  const g=audio.createGain();
+  o.type='sine';
+  o.frequency.value=220;
+  g.gain.value=volume.value*0.15;
+  o.connect(g).connect(audio.destination);
+  o.start();
+  setTimeout(()=>o.stop(),50);
+}
+function heavyStop(){
+  const o=audio.createOscillator();
+  const g=audio.createGain();
+  o.frequency.value=80;
+  g.gain.value=volume.value*0.6;
+  o.connect(g).connect(audio.destination);
+  o.start();
+  setTimeout(()=>o.stop(),180);
+}
+
+/* ANNOUNCER */
+function announce(num){
+  const u=new SpeechSynthesisUtterance(
+    "THE WINNING NUMBER IS " + num.split('').join(' ')
+  );
+  u.volume=1;
+  u.rate=0.85;
+  u.pitch=0.8;
+  speechSynthesis.speak(u);
+}
+
+/* CELEBRATION */
+function celebrate(){
+  frame.classList.add('flash');
+  for(let i=0;i<celebrateLevel.value;i++){
+    const s=document.createElement('div');
+    s.className='spark';
+    s.style.left=Math.random()*100+'%';
+    s.style.bottom='0';
+    frame.appendChild(s);
+    setTimeout(()=>s.remove(),1600);
+  }
+  setTimeout(()=>frame.classList.remove('flash'),1800);
+}
+
+/* SPIN */
+function spinWithResult(result){
+  reels.forEach((r,i)=>{
+    let pos=0;
+    const run=setInterval(()=>{
+      pos=(pos+1)%10;
+      r.style.transform=`translateY(-${pos*170}px)`;
+      metalTick();
+    },speed.value);
+
+    setTimeout(()=>{
+      clearInterval(run);
+      r.style.transform=`translateY(-${result[i]*170}px)`;
+      heavyStop();
+      if(i===reels.length-1){
+        celebrate();
+        announce(result);
+      }
+    },1000+i*delay.value);
+  });
+}
+
+function random(){
+  return Math.floor(Math.random()*100000).toString().padStart(5,'0');
+}
+function spin(){
+  const v=force.value;
+  spinWithResult(/^\d{5}$/.test(v)?v:random());
+}
+function spinRandom(){spinWithResult(random())}
+
+date.textContent=new Date().toLocaleDateString().toUpperCase();
+time.textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}).toUpperCase();
+</script>
+</body>
+</html>
